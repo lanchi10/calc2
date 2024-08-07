@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>מחשבון הנחות חכם</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #50E3C2;
+            --accent-color: #FF5733;
+            --background-color: #F4F7FA;
+            --text-color: #333;
+            --border-color: #E0E0E0;
+            --highlight-color: #FF4500;
+        }
+        body {
+            font-family: 'Rubik', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+            outline: none;
+        }
+        .form-group .currency {
+            position: absolute;
+            left: 10px;
+            top: 40px;
+            color: #888;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        button:hover {
+            background-color: #3A7BC8;
+            transform: translateY(-2px);
+        }
+        #calculatePercentageButton {
+            background-color: var(--highlight-color);
+        }
+        #calculatePercentageButton:hover {
+            background-color: #E03D00;
+        }
+        #clearButton {
+            background-color: var(--secondary-color);
+        }
+        #clearButton:hover {
+            background-color: #3FCFAE;
+        }
+        .result, .summary {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #F0F8FF;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .summary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .help {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #F9F9F9;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        #helpToggle {
+            background-color: var(--accent-color);
+            margin-top: 20px;
+        }
+        #helpToggle:hover {
+            background-color: #E04B2E;
+        }
+        .hidden {
+            display: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+        }
+        .dark-mode {
+            --background-color: #2C3E50;
+            --text-color: #ECF0F1;
+            --border-color: #34495E;
+        }
+        .dark-mode .container {
+            background-color: #34495E;
+        }
+        .dark-mode .result, .dark-mode .help {
+            background-color: #2C3E50;
+            color: #ECF0F1;
+        }
+        #darkModeToggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: transparent;
+            border: none;
+            color: var(--text-color);
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .button-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .button-text {
+            text-align: center;
+        }
+        .input-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<button id="darkModeToggle" onclick="toggleDarkMode()">🌓</button>
+<div class="container">
+    <h1>מחשבון הנחות חכם</h1>
+    <div class="form-group">
+        <label for="originalPrice">מחיר מקורי:</label>
+        <input type="number" id="originalPrice" placeholder="הכנס את המחיר המקורי" min="0" step="0.01">
+        <span class="currency">₪</span>
+        <p class="input-hint">נדרש לכפתורים 1 ו-2</p>
+    </div>
+    <div class="form-group">
+        <label for="discount">הנחה באחוזים:</label>
+        <input type="number" id="discount" placeholder="הכנס את אחוז ההנחה" min="0" max="100" step="0.1">
+        <p class="input-hint">נדרש לכפתור 1</p>
+    </div>
+    <div class="form-group">
+        <label for="finalPrice">מחיר סופי:</label>
+        <input type="number" id="finalPrice" placeholder="הכנס את המחיר הסופי" min="0" step="0.01">
+        <span class="currency">₪</span>
+        <p class="input-hint">נדרש לכפתור 2</p>
+    </div>
+    <div class="button-group">
+        <button onclick="calculateDiscount()">
+            <span class="button-number">1</span>
+            <span class="button-text">חשב מחיר סופי</span>
+        </button>
+        <button id="calculatePercentageButton" onclick="calculatePercentage()">
+            <span class="button-number">2</span>
+            <span class="button-text">חשב אחוז הנחה</span>
+        </button>
+        <button id="clearButton" onclick="clearFields()">נקה הכל</button>
+    </div>
+    <div class="result hidden fade-in" id="result"></div>
+    <div class="summary hidden fade-in" id="summary"></div>
+    <button id="helpToggle" onclick="toggleHelp()">הצג/הסתר עזרה</button>
+    <div class="help hidden fade-in" id="helpContent">
+        <h2>עזרה</h2>
+        <p>להשתמש במחשבון:</p>
+        <ul>
+            <li>כפתור 1: הזן את המחיר המקורי ואת אחוז ההנחה כדי לחשב את המחיר הסופי.</li>
+            <li>כפתור 2: הזן את המחיר המקורי ואת המחיר הסופי כדי לחשב את אחוז ההנחה.</li>
+            <li>לחץ על הכפתור המתאים לאחר ההזנה.</li>
+        </ul>
+        <p>כדי לשמור את היישום בעמוד הבית בנייד:</p>
+        <ul>
+            <li>במכשירי iOS (אייפון/אייפד): לחץ על כפתור השיתוף ובחר באפשרות "הוסף למסך הבית".</li>
+            <li>במכשירי אנדרואיד: לחץ על תפריט הדפדפן (שלוש נקודות בפינה העליונה) ובחר "הוסף למסך הבית".</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    function calculateDiscount() {
+        const originalPrice = parseFloat(document.getElementById('originalPrice').value);
+        const discount = parseFloat(document.getElementById('discount').value);
+        if (isNaN(originalPrice) || isNaN(discount)) {
+            showAlert('אנא הזן ערכים תקינים למחיר המקורי ואחוז ההנחה');
+            return;
+        }
+        const finalPrice = originalPrice - (originalPrice * (discount / 100));
+        const discountAmount = originalPrice * (discount / 100);
+        
+        displayResults(originalPrice, discount, finalPrice, discountAmount);
+    }
+
+    function calculatePercentage() {
+        const originalPrice = parseFloat(document.getElementById('originalPrice').value);
+        const finalPrice = parseFloat(document.getElementById('finalPrice').value);
+        if (isNaN(originalPrice) || isNaN(finalPrice)) {
+            showAlert('אנא הזן ערכים תקינים למחיר המקורי והמחיר הסופי');
+            return;
+        }
+        const discountPercentage = ((originalPrice - finalPrice) / originalPrice) * 100;
+        const discountAmount = originalPrice - finalPrice;
+        
+        displayResults(originalPrice, discountPercentage, finalPrice, discountAmount);
+    }
+
+    function displayResults(originalPrice, discount, finalPrice, discountAmount) {
+        const resultElement = document.getElementById('result');
+        const summaryElement = document.getElementById('summary');
+        
+        resultElement.innerHTML = `
+            <strong>תוצאה:</strong><br>
+            מחיר סופי: ${finalPrice.toFixed(2)} ₪<br>
+            אחוז הנחה: ${discount.toFixed(2)}%
+        `;
+        summaryElement.innerHTML = `
+            <p>מחיר מקורי: ${originalPrice.toFixed(2)} ₪</p>
+            <p>אחוז הנחה: ${discount.toFixed(2)}%</p>
+            <p>מחיר סופי: ${finalPrice.toFixed(2)} ₪</p>
+            <p>סכום ההנחה: ${discountAmount.toFixed(2)} ₪</p>
+        `;
+        
+        resultElement.classList.remove('hidden');
+        summaryElement.classList.remove('hidden');
+        
+        // Reset and trigger animation
+        resultElement.style.animation = 'none';
+        summaryElement.style.animation = 'none';
+        resultElement.offsetHeight; // Trigger reflow
+        summaryElement.offsetHeight; // Trigger reflow
+        resultElement.style.animation = null;
+        summaryElement.style.animation = null;
+    }
+
+    function clearFields() {
+        document.getElementById('originalPrice').value = '';
+        document.getElementById('discount').value = '';
+        document.getElementById('finalPrice').value = '';
+        document.getElementById('result').classList.add('hidden');
+        document.getElementById('summary').classList.add('hidden');
+    }
+
+    function toggleHelp() {
+        const helpContent = document.getElementById('helpContent');
+        helpContent.classList.toggle('hidden');
+        const helpToggle = document.getElementById('helpToggle');
+        helpToggle.textContent = helpContent.classList.contains('hidden') ? 'הצג עזרה' : 'הסתר עזרה';
+        
+        if (!helpContent.classList.contains('hidden')) {
+            helpContent.style.animation = 'none';
+            helpContent.offsetHeight; // Trigger reflow
+            helpContent.style.animation = null;
+        }
+    }
+
+    function showAlert(message) {
+        alert(message);
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+    }
+</script>
+
+</body>
+</html>
+
+Version 26 of 30
